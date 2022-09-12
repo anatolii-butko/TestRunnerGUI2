@@ -1,0 +1,10 @@
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\bin\Debug\TestTunnerGUI2.exe.config
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\bin\Debug\TestTunnerGUI2.exe
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\bin\Debug\TestTunnerGUI2.pdb
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\obj\Debug\TestTunnerGUI2.csproj.AssemblyReference.cache
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\obj\Debug\TestTunnerGUI2.Properties.Resources.resources
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\obj\Debug\TestTunnerGUI2.csproj.GenerateResource.cache
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\obj\Debug\TestTunnerGUI2.csproj.CoreCompileInputs.cache
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\obj\Debug\TestTunnerGUI2.exe
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\obj\Debug\TestTunnerGUI2.pdb
+C:\Users\anatolii.butko\source\repos\TestTunnerGUI2\obj\Debug\TestTunnerGUI2.MainWindow.resources
