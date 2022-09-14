@@ -33,18 +33,18 @@ namespace TestTunnerGUI2
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.labelPathToRepo = new System.Windows.Forms.Label();
             this.textBoxPathToRepo = new System.Windows.Forms.TextBox();
-            this.treeViewRepo = new System.Windows.Forms.TreeView();
             this.imageListRepo = new System.Windows.Forms.ImageList(this.components);
             this.labelPathToLogs = new System.Windows.Forms.Label();
             this.labelPathToTool = new System.Windows.Forms.Label();
             this.textBoxPathToTool = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.CommandLine = new System.Windows.Forms.TabPage();
+            this.richTextBoxCommandLine = new System.Windows.Forms.RichTextBox();
             this.Logs = new System.Windows.Forms.TabPage();
+            this.richTextBoxLogs = new System.Windows.Forms.RichTextBox();
             this.textBoxPathToLogs = new System.Windows.Forms.TextBox();
             this.labelPathToConfigs = new System.Windows.Forms.Label();
             this.textBoxPathToConfigs = new System.Windows.Forms.TextBox();
-            this.treeViewConfigs = new System.Windows.Forms.TreeView();
             this.imageListConfigs = new System.Windows.Forms.ImageList(this.components);
             this.buttonHelp = new System.Windows.Forms.Button();
             this.buttonSave = new System.Windows.Forms.Button();
@@ -61,7 +61,11 @@ namespace TestTunnerGUI2
             this.saveFileDialogBat = new System.Windows.Forms.SaveFileDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.folderBrowserDialogLogs = new System.Windows.Forms.FolderBrowserDialog();
+            this.treeViewConfigs = new System.Windows.Forms.TreeView();
+            this.treeViewRepo = new System.Windows.Forms.TreeView();
             this.tabControl1.SuspendLayout();
+            this.CommandLine.SuspendLayout();
+            this.Logs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxLogsFolder)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxToolFolder)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRepoFolder)).BeginInit();
@@ -87,18 +91,6 @@ namespace TestTunnerGUI2
             this.textBoxPathToRepo.TabIndex = 1;
             this.textBoxPathToRepo.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxPathToRepo_KeyDown);
             // 
-            // treeViewRepo
-            // 
-            this.treeViewRepo.CheckBoxes = true;
-            this.treeViewRepo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.treeViewRepo.ImageIndex = 0;
-            this.treeViewRepo.ImageList = this.imageListRepo;
-            this.treeViewRepo.Location = new System.Drawing.Point(10, 76);
-            this.treeViewRepo.Name = "treeViewRepo";
-            this.treeViewRepo.SelectedImageIndex = 0;
-            this.treeViewRepo.Size = new System.Drawing.Size(410, 488);
-            this.treeViewRepo.TabIndex = 22;
-            // 
             // imageListRepo
             // 
             this.imageListRepo.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListRepo.ImageStream")));
@@ -120,7 +112,7 @@ namespace TestTunnerGUI2
             // 
             this.labelPathToTool.AutoSize = true;
             this.labelPathToTool.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPathToTool.Location = new System.Drawing.Point(430, 10);
+            this.labelPathToTool.Location = new System.Drawing.Point(850, 10);
             this.labelPathToTool.Name = "labelPathToTool";
             this.labelPathToTool.Size = new System.Drawing.Size(147, 20);
             this.labelPathToTool.TabIndex = 4;
@@ -129,7 +121,7 @@ namespace TestTunnerGUI2
             // textBoxPathToTool
             // 
             this.textBoxPathToTool.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxPathToTool.Location = new System.Drawing.Point(430, 40);
+            this.textBoxPathToTool.Location = new System.Drawing.Point(850, 40);
             this.textBoxPathToTool.Name = "textBoxPathToTool";
             this.textBoxPathToTool.Size = new System.Drawing.Size(374, 26);
             this.textBoxPathToTool.TabIndex = 5;
@@ -140,7 +132,7 @@ namespace TestTunnerGUI2
             this.tabControl1.Controls.Add(this.CommandLine);
             this.tabControl1.Controls.Add(this.Logs);
             this.tabControl1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabControl1.Location = new System.Drawing.Point(430, 76);
+            this.tabControl1.Location = new System.Drawing.Point(850, 76);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(410, 488);
@@ -148,6 +140,7 @@ namespace TestTunnerGUI2
             // 
             // CommandLine
             // 
+            this.CommandLine.Controls.Add(this.richTextBoxCommandLine);
             this.CommandLine.Location = new System.Drawing.Point(4, 29);
             this.CommandLine.Name = "CommandLine";
             this.CommandLine.Padding = new System.Windows.Forms.Padding(3);
@@ -156,8 +149,19 @@ namespace TestTunnerGUI2
             this.CommandLine.Text = "Command Line";
             this.CommandLine.UseVisualStyleBackColor = true;
             // 
+            // richTextBoxCommandLine
+            // 
+            this.richTextBoxCommandLine.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBoxCommandLine.Location = new System.Drawing.Point(3, 3);
+            this.richTextBoxCommandLine.Name = "richTextBoxCommandLine";
+            this.richTextBoxCommandLine.Size = new System.Drawing.Size(396, 449);
+            this.richTextBoxCommandLine.TabIndex = 0;
+            this.richTextBoxCommandLine.Text = "\"TestFrameworkProgr.exe -p SomeProject -n SomeTest -c C:\\\\CorrectRegressionBranch" +
+    "\\\\configFiles\\\\Some_Config.xml\"";
+            // 
             // Logs
             // 
+            this.Logs.Controls.Add(this.richTextBoxLogs);
             this.Logs.Location = new System.Drawing.Point(4, 29);
             this.Logs.Name = "Logs";
             this.Logs.Padding = new System.Windows.Forms.Padding(3);
@@ -165,6 +169,15 @@ namespace TestTunnerGUI2
             this.Logs.TabIndex = 1;
             this.Logs.Text = "Logs";
             this.Logs.UseVisualStyleBackColor = true;
+            // 
+            // richTextBoxLogs
+            // 
+            this.richTextBoxLogs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBoxLogs.Location = new System.Drawing.Point(3, 3);
+            this.richTextBoxLogs.Name = "richTextBoxLogs";
+            this.richTextBoxLogs.Size = new System.Drawing.Size(396, 449);
+            this.richTextBoxLogs.TabIndex = 0;
+            this.richTextBoxLogs.Text = "";
             // 
             // textBoxPathToLogs
             // 
@@ -179,7 +192,7 @@ namespace TestTunnerGUI2
             // 
             this.labelPathToConfigs.AutoSize = true;
             this.labelPathToConfigs.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPathToConfigs.Location = new System.Drawing.Point(850, 10);
+            this.labelPathToConfigs.Location = new System.Drawing.Point(430, 10);
             this.labelPathToConfigs.Name = "labelPathToConfigs";
             this.labelPathToConfigs.Size = new System.Drawing.Size(172, 20);
             this.labelPathToConfigs.TabIndex = 8;
@@ -188,22 +201,11 @@ namespace TestTunnerGUI2
             // textBoxPathToConfigs
             // 
             this.textBoxPathToConfigs.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxPathToConfigs.Location = new System.Drawing.Point(850, 40);
+            this.textBoxPathToConfigs.Location = new System.Drawing.Point(430, 40);
             this.textBoxPathToConfigs.Name = "textBoxPathToConfigs";
             this.textBoxPathToConfigs.Size = new System.Drawing.Size(374, 26);
             this.textBoxPathToConfigs.TabIndex = 9;
             this.textBoxPathToConfigs.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxPathToConfigs_KeyDown);
-            // 
-            // treeViewConfigs
-            // 
-            this.treeViewConfigs.CheckBoxes = true;
-            this.treeViewConfigs.ImageIndex = 0;
-            this.treeViewConfigs.ImageList = this.imageListConfigs;
-            this.treeViewConfigs.Location = new System.Drawing.Point(850, 76);
-            this.treeViewConfigs.Name = "treeViewConfigs";
-            this.treeViewConfigs.SelectedImageIndex = 0;
-            this.treeViewConfigs.Size = new System.Drawing.Size(410, 488);
-            this.treeViewConfigs.TabIndex = 10;
             // 
             // imageListConfigs
             // 
@@ -222,6 +224,7 @@ namespace TestTunnerGUI2
             this.buttonHelp.TabIndex = 11;
             this.buttonHelp.Text = "?";
             this.buttonHelp.UseVisualStyleBackColor = false;
+            this.buttonHelp.Click += new System.EventHandler(this.ButtonHelp_Click);
             // 
             // buttonSave
             // 
@@ -233,6 +236,7 @@ namespace TestTunnerGUI2
             this.buttonSave.TabIndex = 12;
             this.buttonSave.Text = "Save .bat";
             this.buttonSave.UseVisualStyleBackColor = false;
+            this.buttonSave.Click += new System.EventHandler(this.ButtonSave_Click);
             // 
             // buttonLoad
             // 
@@ -244,6 +248,7 @@ namespace TestTunnerGUI2
             this.buttonLoad.TabIndex = 13;
             this.buttonLoad.Text = "Load .bat";
             this.buttonLoad.UseVisualStyleBackColor = false;
+            this.buttonLoad.Click += new System.EventHandler(this.ButtonLoad_Click);
             // 
             // buttonRun
             // 
@@ -255,6 +260,7 @@ namespace TestTunnerGUI2
             this.buttonRun.TabIndex = 14;
             this.buttonRun.Text = "Run";
             this.buttonRun.UseVisualStyleBackColor = false;
+            this.buttonRun.Click += new System.EventHandler(this.ButtonRun_Click);
             // 
             // pictureBoxLogsFolder
             // 
@@ -269,7 +275,7 @@ namespace TestTunnerGUI2
             // pictureBoxToolFolder
             // 
             this.pictureBoxToolFolder.Image = global::TestTunnerGUI2.Properties.Resources.icons8_file_folder_24;
-            this.pictureBoxToolFolder.Location = new System.Drawing.Point(814, 41);
+            this.pictureBoxToolFolder.Location = new System.Drawing.Point(1233, 41);
             this.pictureBoxToolFolder.Name = "pictureBoxToolFolder";
             this.pictureBoxToolFolder.Size = new System.Drawing.Size(24, 24);
             this.pictureBoxToolFolder.TabIndex = 16;
@@ -289,7 +295,7 @@ namespace TestTunnerGUI2
             // pictureBoxConfigsFolder
             // 
             this.pictureBoxConfigsFolder.Image = global::TestTunnerGUI2.Properties.Resources.icons8_file_folder_24;
-            this.pictureBoxConfigsFolder.Location = new System.Drawing.Point(1234, 41);
+            this.pictureBoxConfigsFolder.Location = new System.Drawing.Point(815, 41);
             this.pictureBoxConfigsFolder.Name = "pictureBoxConfigsFolder";
             this.pictureBoxConfigsFolder.Size = new System.Drawing.Size(24, 24);
             this.pictureBoxConfigsFolder.TabIndex = 18;
@@ -333,12 +339,44 @@ namespace TestTunnerGUI2
             // 
             this.folderBrowserDialogLogs.RootFolder = System.Environment.SpecialFolder.MyComputer;
             // 
+            // treeViewConfigs
+            // 
+            this.treeViewConfigs.CheckBoxes = true;
+            this.treeViewConfigs.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.treeViewConfigs.HideSelection = false;
+            this.treeViewConfigs.ImageIndex = 0;
+            this.treeViewConfigs.ImageList = this.imageListConfigs;
+            this.treeViewConfigs.Location = new System.Drawing.Point(430, 76);
+            this.treeViewConfigs.Name = "treeViewConfigs";
+            this.treeViewConfigs.SelectedImageIndex = 0;
+            this.treeViewConfigs.Size = new System.Drawing.Size(410, 488);
+            this.treeViewConfigs.TabIndex = 10;
+            this.treeViewConfigs.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.TreeViewConfigs_AfterCheck);
+            // 
+            // treeViewRepo
+            // 
+            this.treeViewRepo.CheckBoxes = true;
+            this.treeViewRepo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.treeViewRepo.HideSelection = false;
+            this.treeViewRepo.ImageIndex = 0;
+            this.treeViewRepo.ImageList = this.imageListRepo;
+            this.treeViewRepo.Location = new System.Drawing.Point(10, 76);
+            this.treeViewRepo.Name = "treeViewRepo";
+            this.treeViewRepo.SelectedImageIndex = 0;
+            this.treeViewRepo.Size = new System.Drawing.Size(410, 488);
+            this.treeViewRepo.TabIndex = 22;
+            this.treeViewRepo.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.TreeViewRepo_AfterCheck);
+            this.treeViewRepo.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeViewRepo_BeforeSelect);
+            this.treeViewRepo.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeViewRepo_AfterSelect);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1271, 615);
+            this.Controls.Add(this.treeViewRepo);
+            this.Controls.Add(this.treeViewConfigs);
             this.Controls.Add(this.pictureBoxConfigsFolder);
             this.Controls.Add(this.pictureBoxRepoFolder);
             this.Controls.Add(this.pictureBoxToolFolder);
@@ -347,7 +385,6 @@ namespace TestTunnerGUI2
             this.Controls.Add(this.buttonLoad);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.buttonHelp);
-            this.Controls.Add(this.treeViewConfigs);
             this.Controls.Add(this.textBoxPathToConfigs);
             this.Controls.Add(this.labelPathToConfigs);
             this.Controls.Add(this.textBoxPathToLogs);
@@ -355,13 +392,14 @@ namespace TestTunnerGUI2
             this.Controls.Add(this.textBoxPathToTool);
             this.Controls.Add(this.labelPathToTool);
             this.Controls.Add(this.labelPathToLogs);
-            this.Controls.Add(this.treeViewRepo);
             this.Controls.Add(this.textBoxPathToRepo);
             this.Controls.Add(this.labelPathToRepo);
             this.Name = "MainWindow";
             this.Text = "TestRunnerGUI";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl1.ResumeLayout(false);
+            this.CommandLine.ResumeLayout(false);
+            this.Logs.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxLogsFolder)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxToolFolder)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRepoFolder)).EndInit();
@@ -375,7 +413,6 @@ namespace TestTunnerGUI2
 
         private System.Windows.Forms.Label labelPathToRepo;
         private System.Windows.Forms.TextBox textBoxPathToRepo;
-        private System.Windows.Forms.TreeView treeViewRepo;
         private System.Windows.Forms.Label labelPathToLogs;
         private System.Windows.Forms.Label labelPathToTool;
         private System.Windows.Forms.TextBox textBoxPathToTool;
@@ -385,7 +422,6 @@ namespace TestTunnerGUI2
         private System.Windows.Forms.TextBox textBoxPathToLogs;
         private System.Windows.Forms.Label labelPathToConfigs;
         private System.Windows.Forms.TextBox textBoxPathToConfigs;
-        private System.Windows.Forms.TreeView treeViewConfigs;
         private System.Windows.Forms.Button buttonHelp;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Button buttonLoad;
@@ -403,6 +439,10 @@ namespace TestTunnerGUI2
         private System.Windows.Forms.ImageList imageListConfigs;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialogLogs;
+        private System.Windows.Forms.RichTextBox richTextBoxCommandLine;
+        private System.Windows.Forms.RichTextBox richTextBoxLogs;
+        private System.Windows.Forms.TreeView treeViewConfigs;
+        private System.Windows.Forms.TreeView treeViewRepo;
     }
 }
 

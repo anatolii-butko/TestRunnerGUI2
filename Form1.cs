@@ -3,6 +3,8 @@
     #region using
 
     using System;
+    using System.Diagnostics;
+    using System.Drawing;
     using System.IO;
     using System.Windows.Forms;
 
@@ -15,12 +17,25 @@
     {
         #region Fields and Constants;
 
-        public string pathToRepo; //Variable that stores the full path to the test repository.
-        public string pathToTool; //Variable that stores the full path to the tool/framework that runs the tests.
-        public string pathToConfigs; //Variable that stores the full path to the configuration files for the tests.
-        public string pathToLogs; //Variable that stores the full path to the test log files.
-
-
+        protected string pathToRepo; //A variable that stores the full path to the test repository.
+        protected string pathToTool; //A variable that stores the full path to the tool/framework that runs the tests.
+        protected string pathToConfigs; //A variable that stores the full path to the configuration files for the tests.
+        protected string pathToLogs; //A variable that stores the full path to the test log files.
+        protected bool isAnyNodeInTreeviwRepoChecked; //A flag indicating whether any tree node has been checked.
+        protected bool isAnyNodeInTreeviwConfigsChecked; //A flag indicating whether any tree node has been checked.
+        protected TreeView tempTree; //Temporary tree to save changes.
+        protected bool wasAnyNodeInTreeviewRepoSelected; //A flag indicating was any tree node selected. Needs to prevent null refferance.
+        protected string repoFolder; //A variable that stores the address of the repo folder. Required as an argument to launch the terminal.
+        protected string configsFolder; //A variable that stores the address of the configs folder. Required as an argument to launch the terminal.
+        protected string toolFolder; //A variable that stores the address of the toolbox folder. Required as an argument to launch the terminal.
+        protected string logsFolder; // A variable that stores the address of the logs folder. Required as an argument to launch the terminal.
+        protected string command; //A variable containing a formatted list of commands (also as a single command).
+        protected bool testWasCheched; //A flag indicating whether at least some test was selected.
+        protected string testProject;//A the variable is required to generate the terminal command for each test. Stores the test project path.
+        protected string testName; //A variable is required to generate the terminal command for each test. Stores the full test file path without the project path.
+        protected string testConfig; //A variable is required to generate the terminal command for each test. Stores the path of the configuration file with which to run the test
+        protected string singleCommand; //A variable that stores a command for the terminal to run one specified test.
+        
         #endregion
 
         #region Private methods
@@ -55,8 +70,10 @@
                 return;            
             pathToRepo = folderBrowserDialogRepo.SelectedPath;
             textBoxPathToRepo.Text = pathToRepo;
+            repoFolder = pathToRepo.Substring(0, pathToRepo.LastIndexOf('\\'));
             MessageBox.Show("Path to repo/tests accepted.");
             PopulateTreeView(pathToRepo, treeViewRepo);
+            treeViewRepo.ExpandAll();
             return;
         }
 
@@ -84,6 +101,7 @@
                     }
                     else
                     {
+                        repoFolder = pathToRepo.Substring(0, pathToRepo.LastIndexOf('\\'));
                         MessageBox.Show("Path to repo/tests accepted.");
                         PopulateTreeView(pathToRepo, treeViewRepo);
                         return;
@@ -113,6 +131,7 @@
                 return;
             pathToTool = openFileDialogTool.FileName;
             textBoxPathToTool.Text = pathToTool;
+            toolFolder = pathToTool.Substring(0, pathToTool.LastIndexOf('\\'));
             MessageBox.Show("Path to tool/framework accepted.");
             return;
         }
@@ -141,6 +160,7 @@
                     }
                     else
                     {
+                        toolFolder = pathToTool.Substring(0, pathToTool.LastIndexOf('\\'));
                         MessageBox.Show("Path to tool/framework accepted.");
                         return;
                     }
@@ -169,8 +189,17 @@
                 return;
             pathToConfigs = folderBrowserDialogConfigs.SelectedPath;
             textBoxPathToConfigs.Text = pathToConfigs;
+            configsFolder = pathToConfigs.Substring(0, pathToConfigs.LastIndexOf('\\'));
             MessageBox.Show("Path to configs accepted.");
-            //AddTreeviewConfigsToTreeviewRepoAsTag();
+            PopulateTreeView(pathToConfigs, treeViewConfigs);
+            treeViewConfigs.ExpandAll();
+            TreeView temp = new TreeView();
+            PopulateTreeView(pathToConfigs, temp);
+            foreach(TreeNode node in treeViewRepo.Nodes)
+            {
+                AddTreeviewConfigsToTreeviewRepoAsTag(node);
+            }
+            tempTree = treeViewConfigs;
             return;
         }
 
@@ -198,6 +227,7 @@
                     }
                     else
                     {
+                        configsFolder = pathToConfigs.Substring(0, pathToConfigs.LastIndexOf('\\'));
                         MessageBox.Show("Path to tests configs accepted.");
                         PopulateTreeView(pathToConfigs, treeViewConfigs);
                         return;
@@ -227,6 +257,7 @@
                 return;
             pathToLogs = folderBrowserDialogLogs.SelectedPath;
             textBoxPathToLogs.Text = pathToLogs;
+            logsFolder = pathToLogs.Substring(0, pathToLogs.LastIndexOf('\\'));
             MessageBox.Show("Path to test logs accepted.");
             return;
         }
@@ -255,6 +286,7 @@
                     }
                     else
                     {
+                        logsFolder = pathToLogs.Substring(0, pathToLogs.LastIndexOf('\\'));
                         MessageBox.Show("Path to test logs accepted.");
                         return;
                     }
@@ -304,10 +336,10 @@
 
             TreeNode output = new TreeNode(dir.Name, 0, 0);
 
-            //if (pathToConfigs != string.Empty || pathToConfigs != null)
-            //{
-            //    output.Tag = treeViewConfigs;
-            //}
+            if (pathToConfigs != string.Empty || pathToConfigs != null)
+            {
+                output.Tag = treeViewConfigs;
+            }
 
             foreach (var subDir in dir.GetDirectories())
             {
@@ -321,13 +353,312 @@
                     output.Nodes.Add(file.Name);
                     output.Nodes[output.Nodes.Count - 1].ImageIndex = 1;
                     output.Nodes[output.Nodes.Count - 1].SelectedImageIndex = 1;
-                    //output.Nodes[output.Nodes.Count - 1].Tag = treeViewConfigs;
+                    if (pathToConfigs != null || pathToConfigs != string.Empty) output.Nodes[output.Nodes.Count - 1].Tag = treeViewConfigs;
                 }
             }
 
             return output;
         }
+
+        /// <summary>
+        /// A method that applies the selection to all node children.
+        /// </summary>
+        /// <param name="node">
+        /// A node whose children need to be checked.
+        /// </param>
+        private void CheckItems(TreeNode node)
+        {
+            node.Checked = true;
+            foreach (TreeNode childNode in node.Nodes)
+            {
+                childNode.Checked = true;
+                CheckItems(childNode);
+            }
+        }
+
+        /// <summary>
+        /// A method that applies the selection to all node children
+        /// </summary>
+        /// <param name="node">
+        /// A node whose children need to be unchecked.
+        /// </param>
+        private void UnCheckItems(TreeNode node)
+        {
+            node.Checked = false;
+            foreach (TreeNode childNode in node.Nodes)
+            {
+                childNode.Checked = false;
+                UnCheckItems(childNode);
+            }
+        }
+
+        /// <summary>
+        /// A method that checks whether the state of any of the elements has been changed and applies the selection to all children.
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void TreeViewRepo_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            isAnyNodeInTreeviwRepoChecked = e.Node.Checked;
+            if (isAnyNodeInTreeviwRepoChecked == true)
+            {
+                foreach (TreeNode node in e.Node.Nodes)
+                {
+                    node.Checked = true;
+                    CheckItems(node);
+                }
+                isAnyNodeInTreeviwRepoChecked = true;
+                return;
+            }
+            else
+            {
+                foreach (TreeNode node in e.Node.Nodes)
+                {
+                    node.Checked = false;
+                    UnCheckItems(node);
+                }
+                isAnyNodeInTreeviwRepoChecked = false;
+                return;
+            }
+        }
+
+        /// <summary>
+        /// A method that checks whether the state of any of the elements has been changed and applies the selection to all children.
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void TreeViewConfigs_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            isAnyNodeInTreeviwConfigsChecked = e.Node.Checked;
+            if (isAnyNodeInTreeviwConfigsChecked == true)
+            {
+                foreach (TreeNode node in e.Node.Nodes)
+                {
+                    node.Checked = true;
+                    CheckItems(node);
+                }
+                isAnyNodeInTreeviwConfigsChecked = true;
+                return;
+            }
+            else
+            {
+                foreach (TreeNode node in e.Node.Nodes)
+                {
+                    node.Checked = false;
+                    UnCheckItems(node);
+                }
+                isAnyNodeInTreeviwConfigsChecked = false;
+                return;
+            }
+        }
+
         
+
+        /// <summary>
+        /// A method that adds to all nodes of the repository tree the config tree as a tag value.
+        /// </summary>
+        /// <param name="node">
+        /// Еhe tree node and its children (if any) to which the tag value needs to be added.
+        /// </param>
+        private void AddTreeviewConfigsToTreeviewRepoAsTag(TreeNode node)
+        {
+            node.Tag = treeViewConfigs;
+            foreach(TreeNode childNode in node.Nodes)
+            {
+                AddTreeviewConfigsToTreeviewRepoAsTag(childNode);
+            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void TreeViewRepo_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+            if (wasAnyNodeInTreeviewRepoSelected == true)
+            {
+                //e.Node.Tag = treeViewConfigs;
+                treeViewRepo.SelectedNode.Tag = treeViewConfigs;
+            }
+            else return;
+                        
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void TreeViewRepo_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            TreeNode currentNode = e.Node;
+            string fullPath = currentNode.FullPath;
+            MessageBox.Show(fullPath);
+            wasAnyNodeInTreeviewRepoSelected = true;
+            treeViewConfigs = (TreeView)treeViewRepo.SelectedNode.Tag;
+            //treeViewConfigs = (TreeView)e.Node.Tag;
+
+        }
+
+        public void IterateTreeNodes()
+        {
+
+        }
+
+        /// <summary>
+        /// Handles a Click event on ButtonHelp.
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void ButtonHelp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Handles a Click event on ButtonLoad.
+        /// Loads a previously saved file with a list of tests and selected configurations for them as commands to run from the terminal.
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void ButtonLoad_Click(object sender, EventArgs e)
+        {
+            if (openFileDialogBat.ShowDialog() == DialogResult.Cancel)
+                return;
+            //richTextBoxCommandLine.Text = presetText;            
+            MessageBox.Show("Preset saved.");
+            return;
+        }
+
+        /// <summary>
+        /// Handles a Click event on ButtonSave.
+        /// Saves a list of tests and selected configurations for them as commands to run from the terminal in a single file.
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void ButtonSave_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialogBat.ShowDialog() == DialogResult.Cancel)
+                return;
+            //filePresetName = saveFileDialogBat.FileName;
+            //File.WriteAllText(filePresetName, presetText);
+            //pathToPreset = openFileDialogBat.FileName;
+            MessageBox.Show("Preset saved.");
+            //richTextBoxCommandLine.Text = presetText;
+            return;
+        }
+
+        /// <summary>
+        /// Handles a Click event on ButtonRun.
+        /// Run a terminal with administrator permission (admin mode) and initializes the cd command to the selected folder.
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void ButtonRun_Click(object sender, EventArgs e)
+        {
+            richTextBoxCommandLine.Clear();
+            richTextBoxLogs.Clear();
+            ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd.exe", "/k arp -d")
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Normal,
+                UseShellExecute = true,
+                Verb = "runas",
+                WorkingDirectory = toolFolder
+            };
+            
+            //tests = string.Empty;
+            ///File.WriteAllText("C:\\TestRunner\\Bat_runer.bat", "command1\n" +"command2\n");
+            ///Process.Start("C:\\TestRunner\\Bat_runer.bat");           
+            richTextBoxCommandLine.Text = "cd " + toolFolder;
+
+            // Temporary variable for short and clear code.
+            string tempPath = treeViewRepo.SelectedNode.FullPath.Substring(treeViewRepo.SelectedNode.FullPath.IndexOf('\\') + 1); 
+            testProject = tempPath.Substring(0, tempPath.IndexOf('\\'));
+
+            testName = treeViewRepo.SelectedNode.FullPath.Substring(treeViewRepo.SelectedNode.FullPath.LastIndexOf('\\') + 1);
+
+            testConfig = pathToConfigs + treeViewConfigs.SelectedNode.FullPath.Substring(treeViewConfigs.SelectedNode.FullPath.IndexOf('\\'));
+
+            singleCommand = pathToTool + " -p " + testProject + " -n " + testName + " -c " + testConfig;
+            richTextBoxCommandLine.Text += "\n" + singleCommand;
+            richTextBoxCommandLine.Find(singleCommand.Substring(0, pathToTool.Length));
+            richTextBoxCommandLine.SelectionColor = Color.Green;
+            richTextBoxCommandLine.Find(" -p ");
+            richTextBoxCommandLine.SelectionColor = Color.Blue;
+            richTextBoxCommandLine.Find(" -n ");
+            richTextBoxCommandLine.SelectionColor = Color.Blue;
+            richTextBoxCommandLine.Find(" -c ");
+            richTextBoxCommandLine.SelectionColor = Color.Blue;
+
+            command = richTextBoxCommandLine.Text;
+            GetTestsList();
+            Process.Start(processStartInfo);
+        }
+
+        /// <summary>
+        /// A method that receives a list of tests by traversing all nodes of the tree of repo.
+        /// </summary>
+        private void GetTestsList()
+        {
+            //testWasCheched = false; // flag indicating was a choose any tests to run
+            foreach (TreeNode node in treeViewRepo.Nodes)
+            {
+                if (node.ImageIndex == 1 && node.Checked == true) richTextBoxLogs.Text += "\n" + node.FullPath;
+                else FindTests(node);
+            }
+            if (testWasCheched  == false) MessageBox.Show("Choose an other folder, no tests here.");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node">
+        /// 
+        /// </param>
+        private void FindTests(TreeNode node)
+        {
+            foreach (TreeNode childNode in node.Nodes)
+            {
+                if (childNode.ImageIndex == 1 && childNode.Checked == true) richTextBoxLogs.Text += "\n" + childNode.FullPath;
+                else FindTests(childNode);
+            }
+        }
+
         #endregion
 
         #region Public methods
@@ -340,8 +671,19 @@
         public MainWindow()
         {
             InitializeComponent();
+            isAnyNodeInTreeviwRepoChecked = false;
+            isAnyNodeInTreeviwConfigsChecked = false;
+            richTextBoxCommandLine.Text = "TestFrameworkProgr.exe -p SomeProject -n SomeTest -c C:\\CorrectRegressionBranch\\configFiles\\Some_Config.xml";
+            tempTree = null;
+            wasAnyNodeInTreeviewRepoSelected = false;
+            testWasCheched = false;
+            testProject = string.Empty;
+            testName = string.Empty;
+            testConfig = string.Empty;
+            singleCommand = string.Empty;
         }
 
-        #endregion        
+        #endregion
+        
     }
 }
