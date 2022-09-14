@@ -63,6 +63,7 @@ namespace TestTunnerGUI2
             this.folderBrowserDialogLogs = new System.Windows.Forms.FolderBrowserDialog();
             this.treeViewConfigs = new System.Windows.Forms.TreeView();
             this.treeViewRepo = new System.Windows.Forms.TreeView();
+            this.buttonClean = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.CommandLine.SuspendLayout();
             this.Logs.SuspendLayout();
@@ -156,8 +157,7 @@ namespace TestTunnerGUI2
             this.richTextBoxCommandLine.Name = "richTextBoxCommandLine";
             this.richTextBoxCommandLine.Size = new System.Drawing.Size(396, 449);
             this.richTextBoxCommandLine.TabIndex = 0;
-            this.richTextBoxCommandLine.Text = "\"TestFrameworkProgr.exe -p SomeProject -n SomeTest -c C:\\\\CorrectRegressionBranch" +
-    "\\\\configFiles\\\\Some_Config.xml\"";
+            this.richTextBoxCommandLine.Text = "";
             // 
             // Logs
             // 
@@ -230,9 +230,9 @@ namespace TestTunnerGUI2
             // 
             this.buttonSave.BackColor = System.Drawing.Color.LawnGreen;
             this.buttonSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonSave.Location = new System.Drawing.Point(1000, 574);
+            this.buttonSave.Location = new System.Drawing.Point(980, 574);
             this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(100, 30);
+            this.buttonSave.Size = new System.Drawing.Size(80, 30);
             this.buttonSave.TabIndex = 12;
             this.buttonSave.Text = "Save .bat";
             this.buttonSave.UseVisualStyleBackColor = false;
@@ -244,7 +244,7 @@ namespace TestTunnerGUI2
             this.buttonLoad.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.buttonLoad.Location = new System.Drawing.Point(890, 574);
             this.buttonLoad.Name = "buttonLoad";
-            this.buttonLoad.Size = new System.Drawing.Size(100, 30);
+            this.buttonLoad.Size = new System.Drawing.Size(80, 30);
             this.buttonLoad.TabIndex = 13;
             this.buttonLoad.Text = "Load .bat";
             this.buttonLoad.UseVisualStyleBackColor = false;
@@ -341,7 +341,6 @@ namespace TestTunnerGUI2
             // 
             // treeViewConfigs
             // 
-            this.treeViewConfigs.CheckBoxes = true;
             this.treeViewConfigs.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.treeViewConfigs.HideSelection = false;
             this.treeViewConfigs.ImageIndex = 0;
@@ -352,6 +351,7 @@ namespace TestTunnerGUI2
             this.treeViewConfigs.Size = new System.Drawing.Size(410, 488);
             this.treeViewConfigs.TabIndex = 10;
             this.treeViewConfigs.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.TreeViewConfigs_AfterCheck);
+            this.treeViewConfigs.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeViewConfigs_NodeMouseDoubleClick);
             // 
             // treeViewRepo
             // 
@@ -369,12 +369,25 @@ namespace TestTunnerGUI2
             this.treeViewRepo.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeViewRepo_BeforeSelect);
             this.treeViewRepo.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeViewRepo_AfterSelect);
             // 
+            // buttonClean
+            // 
+            this.buttonClean.BackColor = System.Drawing.Color.Transparent;
+            this.buttonClean.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonClean.Location = new System.Drawing.Point(1070, 574);
+            this.buttonClean.Name = "buttonClean";
+            this.buttonClean.Size = new System.Drawing.Size(80, 30);
+            this.buttonClean.TabIndex = 23;
+            this.buttonClean.Text = "Clean";
+            this.buttonClean.UseVisualStyleBackColor = false;
+            this.buttonClean.Click += new System.EventHandler(this.ButtonClean_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1271, 615);
+            this.Controls.Add(this.buttonClean);
             this.Controls.Add(this.treeViewRepo);
             this.Controls.Add(this.treeViewConfigs);
             this.Controls.Add(this.pictureBoxConfigsFolder);
@@ -443,6 +456,7 @@ namespace TestTunnerGUI2
         private System.Windows.Forms.RichTextBox richTextBoxLogs;
         private System.Windows.Forms.TreeView treeViewConfigs;
         private System.Windows.Forms.TreeView treeViewRepo;
+        private System.Windows.Forms.Button buttonClean;
     }
 }
 

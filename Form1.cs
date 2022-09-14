@@ -3,6 +3,7 @@
     #region using
 
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
     using System.IO;
@@ -35,7 +36,9 @@
         protected string testName; //A variable is required to generate the terminal command for each test. Stores the full test file path without the project path.
         protected string testConfig; //A variable is required to generate the terminal command for each test. Stores the path of the configuration file with which to run the test
         protected string singleCommand; //A variable that stores a command for the terminal to run one specified test.
-        
+        protected string tests; //Temporary variable;
+        protected List<string> testList; //A list of the full paths (relative) of cheched nodes in the tree repo.
+
         #endregion
 
         #region Private methods
@@ -132,6 +135,9 @@
             pathToTool = openFileDialogTool.FileName;
             textBoxPathToTool.Text = pathToTool;
             toolFolder = pathToTool.Substring(0, pathToTool.LastIndexOf('\\'));
+            richTextBoxCommandLine.Text = "cd " + toolFolder;
+            richTextBoxCommandLine.Find("cd " + toolFolder);
+            richTextBoxCommandLine.SelectionColor = Color.Blue;
             MessageBox.Show("Path to tool/framework accepted.");
             return;
         }
@@ -161,6 +167,9 @@
                     else
                     {
                         toolFolder = pathToTool.Substring(0, pathToTool.LastIndexOf('\\'));
+                        richTextBoxCommandLine.Text = "cd " + toolFolder;
+                        richTextBoxCommandLine.Find("cd " + toolFolder);
+                        richTextBoxCommandLine.SelectionColor = Color.Blue;
                         MessageBox.Show("Path to tool/framework accepted.");
                         return;
                     }
@@ -524,6 +533,89 @@
         }
 
         /// <summary>
+        /// Handles a DoubleClick event on TreeViewConfigs Node.
+        ///  Forms a command for the terminal by the selected config file (or folder) for the checked node in the repo tree.
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void TreeViewConfigs_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            foreach (string test in GetTestsList())
+            {
+                string temp = test.Substring(test.IndexOf('\\') + 1);
+                testProject = temp;
+                int len = temp.IndexOf('\\');
+                //string temp2 = temp.Substring(0, len);
+                testName = test.Substring(test.LastIndexOf('\\') + 1);
+                testConfig = pathToConfigs + e.Node.FullPath.Substring(e.Node.FullPath.IndexOf('\\'));
+                singleCommand = pathToTool + " -p " + testProject + " " + len + " " + " -n " + testName + " -c " + testConfig;
+                richTextBoxCommandLine.Text += "\n" + singleCommand;
+                //richTextBoxCommandLine.Find(singleCommand.Substring(0, pathToTool.Length)); // highlights full path to tool.
+                //richTextBoxCommandLine.SelectionColor = Color.Green;
+                //richTextBoxCommandLine.Find(" -p "); // highlights -p.
+                //richTextBoxCommandLine.SelectionColor = Color.Blue;
+                //richTextBoxCommandLine.Find(" -n "); // highlights -n.
+                //richTextBoxCommandLine.SelectionColor = Color.Blue;
+                //richTextBoxCommandLine.Find(" -c "); // highlights -c.
+                //richTextBoxCommandLine.SelectionColor = Color.Blue;
+            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected List<string> GetTestsList()
+        {
+            List<string> testList = new List<string>();
+            foreach (TreeNode node in treeViewRepo.Nodes)
+            {
+                if (node.ImageIndex == 1 && node.Checked)
+                {
+                    tests += "\n" + node.FullPath;
+                    tests.TrimStart('\n');
+                }
+                else
+                {
+                    FindTests(node);
+                }
+            }
+            string[] splited = tests.Split('\n');
+            for (int i = 0; i < splited.Length; i++)
+            {
+                testList.Add(splited[i]);
+            }
+            return testList;
+            //if (testWasCheched == false) MessageBox.Show("Choose an other folder, no tests here.");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node">
+        /// 
+        /// </param>
+        private void FindTests(TreeNode node)
+        {
+            foreach (TreeNode childNode in node.Nodes)
+            {
+                if (childNode.ImageIndex == 1 && childNode.Checked)
+                {
+                    tests += "\n" + childNode.FullPath;
+                    tests.TrimStart('\n');
+                }
+                else
+                {
+                    FindTests(childNode);
+                }
+            }
+        }
+
+        /// <summary>
         /// Handles a Click event on ButtonHelp.
         /// </summary>
         /// <param name="sender">
@@ -552,7 +644,7 @@
             if (openFileDialogBat.ShowDialog() == DialogResult.Cancel)
                 return;
             //richTextBoxCommandLine.Text = presetText;            
-            MessageBox.Show("Preset saved.");
+            MessageBox.Show(".bat loaded.");
             return;
         }
 
@@ -573,9 +665,27 @@
             //filePresetName = saveFileDialogBat.FileName;
             //File.WriteAllText(filePresetName, presetText);
             //pathToPreset = openFileDialogBat.FileName;
-            MessageBox.Show("Preset saved.");
+            MessageBox.Show(".bat saved.");
             //richTextBoxCommandLine.Text = presetText;
             return;
+        }
+
+        /// <summary>
+        /// Handles a Click event on ButtonClear.
+        /// Clear text in RichTextBoxCommandLine.
+        /// </summary>
+        /// <param name="sender">
+        /// Default parametr.
+        /// </param>
+        /// <param name="e">
+        /// Default parametr.
+        /// </param>
+        private void ButtonClean_Click(object sender, EventArgs e)
+        {
+            richTextBoxCommandLine.Clear();
+            richTextBoxCommandLine.Text = "cd " + toolFolder;
+            richTextBoxCommandLine.Find("cd " + toolFolder);
+            richTextBoxCommandLine.SelectionColor = Color.Blue;
         }
 
         /// <summary>
@@ -589,9 +699,7 @@
         /// Default parametr.
         /// </param>
         private void ButtonRun_Click(object sender, EventArgs e)
-        {
-            richTextBoxCommandLine.Clear();
-            richTextBoxLogs.Clear();
+        {            
             ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd.exe", "/k arp -d")
             {
                 CreateNoWindow = true,
@@ -603,61 +711,17 @@
             
             //tests = string.Empty;
             ///File.WriteAllText("C:\\TestRunner\\Bat_runer.bat", "command1\n" +"command2\n");
-            ///Process.Start("C:\\TestRunner\\Bat_runer.bat");           
-            richTextBoxCommandLine.Text = "cd " + toolFolder;
+            ///Process.Start("C:\\TestRunner\\Bat_runer.bat");
 
-            // Temporary variable for short and clear code.
-            string tempPath = treeViewRepo.SelectedNode.FullPath.Substring(treeViewRepo.SelectedNode.FullPath.IndexOf('\\') + 1); 
-            testProject = tempPath.Substring(0, tempPath.IndexOf('\\'));
-
-            testName = treeViewRepo.SelectedNode.FullPath.Substring(treeViewRepo.SelectedNode.FullPath.LastIndexOf('\\') + 1);
-
-            testConfig = pathToConfigs + treeViewConfigs.SelectedNode.FullPath.Substring(treeViewConfigs.SelectedNode.FullPath.IndexOf('\\'));
-
-            singleCommand = pathToTool + " -p " + testProject + " -n " + testName + " -c " + testConfig;
-            richTextBoxCommandLine.Text += "\n" + singleCommand;
-            richTextBoxCommandLine.Find(singleCommand.Substring(0, pathToTool.Length));
-            richTextBoxCommandLine.SelectionColor = Color.Green;
-            richTextBoxCommandLine.Find(" -p ");
-            richTextBoxCommandLine.SelectionColor = Color.Blue;
-            richTextBoxCommandLine.Find(" -n ");
-            richTextBoxCommandLine.SelectionColor = Color.Blue;
-            richTextBoxCommandLine.Find(" -c ");
-            richTextBoxCommandLine.SelectionColor = Color.Blue;
+            
 
             command = richTextBoxCommandLine.Text;
-            GetTestsList();
             Process.Start(processStartInfo);
         }
 
-        /// <summary>
-        /// A method that receives a list of tests by traversing all nodes of the tree of repo.
-        /// </summary>
-        private void GetTestsList()
-        {
-            //testWasCheched = false; // flag indicating was a choose any tests to run
-            foreach (TreeNode node in treeViewRepo.Nodes)
-            {
-                if (node.ImageIndex == 1 && node.Checked == true) richTextBoxLogs.Text += "\n" + node.FullPath;
-                else FindTests(node);
-            }
-            if (testWasCheched  == false) MessageBox.Show("Choose an other folder, no tests here.");
-        }
+        
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="node">
-        /// 
-        /// </param>
-        private void FindTests(TreeNode node)
-        {
-            foreach (TreeNode childNode in node.Nodes)
-            {
-                if (childNode.ImageIndex == 1 && childNode.Checked == true) richTextBoxLogs.Text += "\n" + childNode.FullPath;
-                else FindTests(childNode);
-            }
-        }
+        
 
         #endregion
 
@@ -673,7 +737,7 @@
             InitializeComponent();
             isAnyNodeInTreeviwRepoChecked = false;
             isAnyNodeInTreeviwConfigsChecked = false;
-            richTextBoxCommandLine.Text = "TestFrameworkProgr.exe -p SomeProject -n SomeTest -c C:\\CorrectRegressionBranch\\configFiles\\Some_Config.xml";
+            //richTextBoxCommandLine.Text = "TestFrameworkProgr.exe -p SomeProject -n SomeTest -c C:\\CorrectRegressionBranch\\configFiles\\Some_Config.xml";
             tempTree = null;
             wasAnyNodeInTreeviewRepoSelected = false;
             testWasCheched = false;
@@ -681,6 +745,7 @@
             testName = string.Empty;
             testConfig = string.Empty;
             singleCommand = string.Empty;
+            tests = string.Empty;
         }
 
         #endregion
