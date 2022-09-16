@@ -7,6 +7,7 @@
     using System.Diagnostics;
     using System.Drawing;
     using System.IO;
+    using System.Text.RegularExpressions;
     using System.Windows.Forms;
 
     #endregion
@@ -38,6 +39,9 @@
         protected string singleCommand; //A variable that stores a command for the terminal to run one specified test.
         protected string tests; //Temporary variable;
         protected List<string> testList; //A list of the full paths (relative) of cheched nodes in the tree repo.
+        protected string listOfTests; //A variable that stores a list of tests of marked nodes of the config tree. A list is formed from it (variable).
+        protected string listOfConfigs; //A variable that stores the list of configs of the doubleclicked node of the config tree. A list is formed from it (variable).
+        protected string batFileName;
 
         #endregion
 
@@ -544,75 +548,79 @@
         /// </param>
         private void TreeViewConfigs_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            foreach (string test in GetTestsList())
-            {
-                string temp = test.Substring(test.IndexOf('\\') + 1);
-                testProject = temp;
-                int len = temp.IndexOf('\\');
-                //string temp2 = temp.Substring(0, len);
-                testName = test.Substring(test.LastIndexOf('\\') + 1);
-                testConfig = pathToConfigs + e.Node.FullPath.Substring(e.Node.FullPath.IndexOf('\\'));
-                singleCommand = pathToTool + " -p " + testProject + " " + len + " " + " -n " + testName + " -c " + testConfig;
-                richTextBoxCommandLine.Text += "\n" + singleCommand;
-                //richTextBoxCommandLine.Find(singleCommand.Substring(0, pathToTool.Length)); // highlights full path to tool.
-                //richTextBoxCommandLine.SelectionColor = Color.Green;
-                //richTextBoxCommandLine.Find(" -p "); // highlights -p.
-                //richTextBoxCommandLine.SelectionColor = Color.Blue;
-                //richTextBoxCommandLine.Find(" -n "); // highlights -n.
-                //richTextBoxCommandLine.SelectionColor = Color.Blue;
-                //richTextBoxCommandLine.Find(" -c "); // highlights -c.
-                //richTextBoxCommandLine.SelectionColor = Color.Blue;
-            }
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        protected List<string> GetTestsList()
-        {
-            List<string> testList = new List<string>();
             foreach (TreeNode node in treeViewRepo.Nodes)
             {
-                if (node.ImageIndex == 1 && node.Checked)
-                {
-                    tests += "\n" + node.FullPath;
-                    tests.TrimStart('\n');
-                }
-                else
-                {
-                    FindTests(node);
-                }
+                FindTestsInNodeAndAllChildren(node);
             }
-            string[] splited = tests.Split('\n');
-            for (int i = 0; i < splited.Length; i++)
+            FindConfigsInNodeAndAllChildren(e.Node);
+            foreach (string test in listOfTests.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                testList.Add(splited[i]);
+                foreach (string config in listOfConfigs.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    testProject = test.Substring(test.IndexOf('\\') + 1).Substring(0, test.Substring(test.IndexOf('\\') + 1).IndexOf('\\'));
+                    testName = test.Substring(test.LastIndexOf('\\') + 1);
+                    testConfig = pathToConfigs + config.Substring(config.IndexOf('\\'));
+                    singleCommand = pathToTool + " -p " + testProject + " -n " + testName + " -c " + testConfig;
+                    richTextBoxCommandLine.Text += "\n" + singleCommand;
+                    richTextBoxCommandLine.Find(singleCommand.Substring(0, pathToTool.Length)); // highlights full path to tool.
+                    richTextBoxCommandLine.SelectionColor = Color.Green;
+                    richTextBoxCommandLine.Find(" -p "); // highlights -p.
+                    richTextBoxCommandLine.SelectionColor = Color.Blue;
+                    richTextBoxCommandLine.Find(" -n "); // highlights -n.
+                    richTextBoxCommandLine.SelectionColor = Color.Blue;
+                    richTextBoxCommandLine.Find(" -c "); // highlights -c.
+                    richTextBoxCommandLine.SelectionColor = Color.Blue;
+                }
             }
-            return testList;
-            //if (testWasCheched == false) MessageBox.Show("Choose an other folder, no tests here.");
+            listOfTests = string.Empty;
+            listOfConfigs = string.Empty;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="node">
-        /// 
         /// </param>
-        private void FindTests(TreeNode node)
+        protected void FindTestsInNodeAndAllChildren(TreeNode node)
         {
-            foreach (TreeNode childNode in node.Nodes)
+            if (node.ImageIndex == 1 && node.Checked == true)
             {
-                if (childNode.ImageIndex == 1 && childNode.Checked)
+               
+                listOfTests += "\n" + node.FullPath;
+                listOfTests.TrimStart('\n');
+            }             
+            foreach(TreeNode childNode in node.Nodes)
+            {                
+                FindTestsInNodeAndAllChildren(childNode);
+            }
+            //if (testWasCheched == false) MessageBox.Show("Choose an other folder, no tests here.");
+        }
+
+        protected void FindConfigsInNodeAndAllChildren(TreeNode node)
+        {
+            if (node.ImageIndex == 1) // if clicked config file
+            {
+                listOfConfigs += "\n" + node.FullPath;
+                listOfConfigs.TrimStart('\n');
+                return;
+            }
+            else // clicked dictionary
+            {
+                if (node.Nodes.Count > 0)
                 {
-                    tests += "\n" + childNode.FullPath;
-                    tests.TrimStart('\n');
+                    foreach (TreeNode childNode in node.Nodes) 
+                    {
+                        FindConfigsInNodeAndAllChildren(childNode);
+                    }
+                    return;
                 }
-                else
+                else // clicked dictionary is empty(no config files)
                 {
-                    FindTests(childNode);
+                    MessageBox.Show("You have doubleclicked an empty folder. Doubleclick another folder or file");
+                    return;
                 }
             }
+            
         }
 
         /// <summary>
@@ -643,8 +651,9 @@
         {
             if (openFileDialogBat.ShowDialog() == DialogResult.Cancel)
                 return;
-            //richTextBoxCommandLine.Text = presetText;            
-            MessageBox.Show(".bat loaded.");
+            batFileName = openFileDialogBat.FileName;
+            richTextBoxCommandLine.Text = File.ReadAllText(batFileName);
+            MessageBox.Show(batFileName + ".bat loaded.");
             return;
         }
 
@@ -662,10 +671,9 @@
         {
             if (saveFileDialogBat.ShowDialog() == DialogResult.Cancel)
                 return;
-            //filePresetName = saveFileDialogBat.FileName;
-            //File.WriteAllText(filePresetName, presetText);
-            //pathToPreset = openFileDialogBat.FileName;
-            MessageBox.Show(".bat saved.");
+            batFileName = saveFileDialogBat.FileName;
+            File.WriteAllText(batFileName, richTextBoxCommandLine.Text);
+            MessageBox.Show(".bat saved as" + batFileName);
             //richTextBoxCommandLine.Text = presetText;
             return;
         }
@@ -682,10 +690,15 @@
         /// </param>
         private void ButtonClean_Click(object sender, EventArgs e)
         {
-            richTextBoxCommandLine.Clear();
-            richTextBoxCommandLine.Text = "cd " + toolFolder;
-            richTextBoxCommandLine.Find("cd " + toolFolder);
-            richTextBoxCommandLine.SelectionColor = Color.Blue;
+            if (tabControl1.SelectedTab == Logs) richTextBoxLogs.Clear();
+            else
+            {
+                richTextBoxCommandLine.Clear();
+                richTextBoxCommandLine.Text = "cd " + toolFolder;
+                richTextBoxCommandLine.Find("cd " + toolFolder);
+                richTextBoxCommandLine.SelectionColor = Color.Blue;
+            }
+            
         }
 
         /// <summary>
@@ -708,12 +721,10 @@
                 Verb = "runas",
                 WorkingDirectory = toolFolder
             };
-            
+
             //tests = string.Empty;
             ///File.WriteAllText("C:\\TestRunner\\Bat_runer.bat", "command1\n" +"command2\n");
             ///Process.Start("C:\\TestRunner\\Bat_runer.bat");
-
-            
 
             command = richTextBoxCommandLine.Text;
             Process.Start(processStartInfo);
@@ -745,7 +756,9 @@
             testName = string.Empty;
             testConfig = string.Empty;
             singleCommand = string.Empty;
-            tests = string.Empty;
+            listOfTests = string.Empty;
+            listOfConfigs = string.Empty;
+            batFileName = string.Empty;
         }
 
         #endregion

@@ -152,6 +152,7 @@ namespace TestTunnerGUI2
             // 
             // richTextBoxCommandLine
             // 
+            this.richTextBoxCommandLine.AcceptsTab = true;
             this.richTextBoxCommandLine.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBoxCommandLine.Location = new System.Drawing.Point(3, 3);
             this.richTextBoxCommandLine.Name = "richTextBoxCommandLine";
@@ -172,6 +173,7 @@ namespace TestTunnerGUI2
             // 
             // richTextBoxLogs
             // 
+            this.richTextBoxLogs.AcceptsTab = true;
             this.richTextBoxLogs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBoxLogs.Location = new System.Drawing.Point(3, 3);
             this.richTextBoxLogs.Name = "richTextBoxLogs";
@@ -329,7 +331,7 @@ namespace TestTunnerGUI2
             // 
             // saveFileDialogBat
             // 
-            this.saveFileDialogBat.CheckFileExists = true;
+            this.saveFileDialogBat.CheckPathExists = false;
             this.saveFileDialogBat.CreatePrompt = true;
             this.saveFileDialogBat.Filter = "bat files (*.bat)|*.bat";
             this.saveFileDialogBat.InitialDirectory = "C:\\";
